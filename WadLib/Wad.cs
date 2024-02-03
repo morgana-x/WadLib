@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -119,49 +120,45 @@ namespace WadLib
                 }
             }
         }
-        public Stream Build(Stream fileStream = null) // For reloaded II stuff
+        private void WriteHeader(Stream stream)
         {
-            if (fileStream == null)
-                 fileStream = new MemoryStream();
+            stream.Position = 0;
+            stream.Write(WadIdentifier);
 
-            fileStream.Write(WadIdentifier);
+            stream.Write(BitConverter.GetBytes((int)1)); // Major Version
+            stream.Write(BitConverter.GetBytes((int)0)); // Minor Version
 
-            fileStream.Write(BitConverter.GetBytes((int)1)); // Major Version
-            fileStream.Write(BitConverter.GetBytes((int)0)); // Minor Version
-
-            fileStream.Write(BitConverter.GetBytes((int)0)); // Header Size
+            stream.Write(BitConverter.GetBytes((int)0)); // Header Size
             //Skip Header data since danganronpa doesnt use that
 
-            fileStream.Write(BitConverter.GetBytes(FileEntries.Count)); // Number of files
+            stream.Write(BitConverter.GetBytes(FileEntries.Count)); // Number of files
 
             long fileOffset = 0;
-            int i = 0;
+
             List<WadFileEntry> newEntries = FileEntries;
+
             foreach (WadFileEntry entry in newEntries)
             {
-                // entry.FileSize = _customFiles[i].etc
                 entry.FileOffset = fileOffset;
-                entry.WriteData(fileStream, true);
+                entry.WriteData(stream, true);
 
                 fileOffset += entry.FileSize;
-                i++;
             }
 
-            fileStream.Write(BitConverter.GetBytes(DirectoryEntries.Count)); // Number of Directories
+            stream.Write(BitConverter.GetBytes(DirectoryEntries.Count)); // Number of Directories
 
             foreach (WadDirectoryEntry entry in DirectoryEntries)
             {
-                entry.WriteData(fileStream, true);
+                entry.WriteData(stream, true);
             }
-            i = 0;
+        }
+        public void BuildTo(Stream stream) // For reloaded II stuff
+        {
+            WriteHeader(stream);
             foreach (WadFileEntry entry in FileEntries)
             {
-                // data = File.ReadBytes _customFiles[i] etc
-                fileStream.Write(GetFileData(entry));
-                i++;
+                stream.Write(GetFileData(entry));
             }
-            return fileStream;
-
         }
         public static void Repack(string inPath, string outPath = null)
         {

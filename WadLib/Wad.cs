@@ -90,7 +90,7 @@ namespace WadLib
             //WadStream.Read(shiftBuffer);
             //WadStream.Position = FileEntries[index].FileOffset + fileData.LongLength;
             //WadStream.Write(shiftBuffer);
-            //WadStream.Position = FileEntries[index].FileOffset;
+            WadStream.Position = FileEntries[index].FileOffset;
             WadStream.Write(fileData);
             for (int i = index + 1; i < fileData.Length; i ++)
             {

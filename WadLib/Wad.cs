@@ -69,8 +69,12 @@ namespace WadLib
         {
             int index = FileEntries.IndexOf(entry);
             long oldFileSize = entry.FileSize;
+
+
             entry.FileSize = fileData.LongLength;
+            entry.WriteData(WadStream);
             FileEntries[index] = entry;
+
             if (index == fileData.Length -1)
             {
                 return;
@@ -95,6 +99,7 @@ namespace WadLib
             for (int i = index + 1; i < fileData.Length; i ++)
             {
                 FileEntries[i].FileOffset += (entry.FileSize - oldFileSize);
+                FileEntries[i].WriteData(WadStream);
             }
         }
         public void Patch(string path, byte[] fileData) // Path relative to wad, eg: Dr1/data/us/script/something.lin etc

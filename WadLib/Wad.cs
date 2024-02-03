@@ -10,20 +10,23 @@ namespace WadLib
 {
     public class Wad
     {
-        Stream WadStream { get; set; }
-        private static byte[] WadIdentifier = { 0x41, 0x47, 0x41, 0x52 };
-        int NumberOfFiles { get; set; } = 0;
+        public Stream WadStream { get; set; }
+
+        private static byte[] WadIdentifier = { 0x41, 0x47, 0x41, 0x52 }; // Identifier of wad files
+        public int NumberOfFiles { get; set; } = 0;
         int NumberOfDirectories { get; set; } = 0;
         long DataSectionOffset { get; set; } = 0; // Where all the filedata is stored from
 
-        List<WadFileEntry> FileEntries = new List<WadFileEntry>();
-        List<WadDirectoryEntry> DirectoryEntries = new List<WadDirectoryEntry>();
-        private void ReadHeader()
+        public List<WadFileEntry> FileEntries = new List<WadFileEntry>();
+
+        private List<WadDirectoryEntry> DirectoryEntries = new List<WadDirectoryEntry>(); // 
+        private void ReadHeader() // Read File entries etc
         {
             if (!IsWad(WadStream))
             {
                 return;
             }
+            // Skip versions, identifier, etc
             WadStream.Position = 12;
             byte[] tempIntBuffer = new byte[4];
 
@@ -35,8 +38,12 @@ namespace WadLib
             WadStream.Read(tempIntBuffer);
             NumberOfFiles = BitConverter.ToInt32(tempIntBuffer);
             //Console.WriteLine("Number of files: " + NumberOfFiles);
+            
+            // Probably don't want any left overs from previous wad files
             FileEntries.Clear();
             DirectoryEntries.Clear();
+
+            // Read all the file entries
             for (int i =0; i < NumberOfFiles; i++)
             {
                 WadFileEntry entry = new WadFileEntry();
@@ -58,14 +65,14 @@ namespace WadLib
 
             
         }
-        public static bool IsWad(Stream stream)
+        public static bool IsWad(Stream stream) // Check if first 4 bytes equals the identifier (AGAR) for WAD files
         {
             stream.Position = 0;
             byte[] ident = new byte[WadIdentifier.Length];
             stream.Read(ident);
             return ident.SequenceEqual(WadIdentifier);
         }
-        public void Patch(WadFileEntry entry, byte[] fileData) // For Virtual Wad Files, so reloadedII things can happen!
+        private void Patch(WadFileEntry entry, byte[] fileData) // For Virtual Wad Files, so reloadedII things can happen!
         {
             int index = FileEntries.IndexOf(entry);
             long oldFileSize = entry.FileSize;
@@ -104,9 +111,10 @@ namespace WadLib
         }
         public void Patch(string path, byte[] fileData) // Path relative to wad, eg: Dr1/data/us/script/something.lin etc
         {
+            path = path.Replace("\\", "/");
             foreach(WadFileEntry entry in FileEntries)
             {
-                if (entry.FileName ==  path)
+                if (entry.FileName.ToLower() == path.ToLower())
                 {
                     Patch(entry, fileData);
                     break;
@@ -220,21 +228,20 @@ namespace WadLib
         public void ExtractFile(WadFileEntry entry, string outFolder)
         {
             byte[] data = new byte[entry.FileSize];
+
             WadStream.Position = DataSectionOffset + entry.FileOffset;
             WadStream.Read(data);
-            //FileStream outStream = new FileStream(outFolder + entry.FileName, FileMode.Create);
-            //outStream.Write(data);
-            //outStream.Dispose();
-            //outStream.Close();
+
             Directory.CreateDirectory( Directory.GetParent(outFolder + "\\" + entry.FileName).FullName);
             File.WriteAllBytes(outFolder + "\\" + entry.FileName, data);
+
             data = null;
         }
         public void ExtractFile(int id, string outFolder)
         {
             ExtractFile(FileEntries[id], outFolder);
         }
-        public void ExtractFile(string file, string outFolder)
+        public void ExtractFile(string file, string outFolder) // Path relative to wad, eg: Dr1/data/us/script/something.lin etc
         {
             file = file.Replace("\\", "/");
             foreach(WadFileEntry entry in FileEntries)
@@ -253,14 +260,14 @@ namespace WadLib
                 ExtractFile(entry, outFolder);
             }
         }
-        public void Dispose()
+        public void Dispose() // Cleanup everything
         {
             WadStream.Dispose();
             WadStream.Close();
             FileEntries.Clear();
             DirectoryEntries.Clear();
         }
-        public Wad CreateVirtualWad()
+        public Wad CreateVirtualWad() // Create a virtual wad (No physical file)
         {
             Stream virtualStream = new MemoryStream();
             WadStream.CopyTo(virtualStream);

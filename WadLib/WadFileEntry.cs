@@ -33,9 +33,12 @@ namespace WadLib
             stream.Read(temp64intBuffer);
             FileOffset = BitConverter.ToInt64(temp64intBuffer);
         }
-        public void WriteData(Stream stream)
+        public void WriteData(Stream stream, bool flexible = false)
         {
-            stream.Position = EntryOffset;
+            if (!flexible)
+            {
+                stream.Position = EntryOffset;
+            }
             stream.Write(BitConverter.GetBytes(FileName.Length));
             stream.Write(Encoding.Default.GetBytes(FileName));
             stream.Write(BitConverter.GetBytes(FileSize));

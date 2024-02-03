@@ -80,6 +80,7 @@ namespace WadLib
 
             entry.FileSize = fileData.LongLength;
             entry.WriteData(WadStream);
+
             FileEntries[index] = entry;
 
             if (index == fileData.Length -1)
@@ -87,7 +88,7 @@ namespace WadLib
                 return;
             }
             long sizeOfBytesToBeShifted = FileEntries[index + 1].FileOffset - WadStream.Length; // Oh lord...
-            WadStream.Position = FileEntries[index + 1].FileOffset;
+
             long offset = 0;
             byte[] buffer = new byte[80000];
             while(offset < sizeOfBytesToBeShifted)
@@ -97,10 +98,7 @@ namespace WadLib
                 WadStream.Write(buffer);
                 offset += bytesRead;
             }
-            //byte[] shiftBuffer = new byte[sizeOfBytesToBeShifted]; // This will crash my computer!
-            //WadStream.Read(shiftBuffer);
-            //WadStream.Position = FileEntries[index].FileOffset + fileData.LongLength;
-            //WadStream.Write(shiftBuffer);
+
             WadStream.Position = FileEntries[index].FileOffset;
             WadStream.Write(fileData);
             for (int i = index + 1; i < fileData.Length; i ++)
@@ -121,7 +119,50 @@ namespace WadLib
                 }
             }
         }
+        public Stream Build(Stream fileStream = null) // For reloaded II stuff
+        {
+            if (fileStream == null)
+                 fileStream = new MemoryStream();
 
+            fileStream.Write(WadIdentifier);
+
+            fileStream.Write(BitConverter.GetBytes((int)1)); // Major Version
+            fileStream.Write(BitConverter.GetBytes((int)0)); // Minor Version
+
+            fileStream.Write(BitConverter.GetBytes((int)0)); // Header Size
+            //Skip Header data since danganronpa doesnt use that
+
+            fileStream.Write(BitConverter.GetBytes(FileEntries.Count)); // Number of files
+
+            long fileOffset = 0;
+            int i = 0;
+            List<WadFileEntry> newEntries = FileEntries;
+            foreach (WadFileEntry entry in newEntries)
+            {
+                // entry.FileSize = _customFiles[i].etc
+                entry.FileOffset = fileOffset;
+                entry.WriteData(fileStream, true);
+
+                fileOffset += entry.FileSize;
+                i++;
+            }
+
+            fileStream.Write(BitConverter.GetBytes(DirectoryEntries.Count)); // Number of Directories
+
+            foreach (WadDirectoryEntry entry in DirectoryEntries)
+            {
+                entry.WriteData(fileStream, true);
+            }
+            i = 0;
+            foreach (WadFileEntry entry in FileEntries)
+            {
+                // data = File.ReadBytes _customFiles[i] etc
+                fileStream.Write(GetFileData(entry));
+                i++;
+            }
+            return fileStream;
+
+        }
         public static void Repack(string inPath, string outPath = null)
         {
             if (outPath == null)
@@ -225,13 +266,17 @@ namespace WadLib
             fileStream.Dispose();
             fileStream.Close();
         }
-        public void ExtractFile(WadFileEntry entry, string outFolder)
+        public byte[] GetFileData(WadFileEntry entry)
         {
             byte[] data = new byte[entry.FileSize];
 
             WadStream.Position = DataSectionOffset + entry.FileOffset;
             WadStream.Read(data);
-
+            return data;
+        }
+        public void ExtractFile(WadFileEntry entry, string outFolder)
+        {
+            byte[] data = GetFileData(entry);
             Directory.CreateDirectory( Directory.GetParent(outFolder + "\\" + entry.FileName).FullName);
             File.WriteAllBytes(outFolder + "\\" + entry.FileName, data);
 

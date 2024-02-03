@@ -9,10 +9,13 @@ namespace WadLib
     //internal class WadDirectorySubFileEntry;
     internal class WadDirectoryEntry
     {
-        string DirectoryName;
+        public string DirectoryName { get; set; }
         int NumberOfFiles = 0;
+        long EntryOffset = 0;
+        public List<WadSubDirectoryEntry> SubDirectories { get; set; } = new List<WadSubDirectoryEntry>();
         public void ReadData(Stream stream)
         {
+            EntryOffset = stream.Position;
             byte[] int32tempbuffer = new byte[4];
 
             stream.Read(int32tempbuffer);
@@ -26,13 +29,32 @@ namespace WadLib
 
             stream.Read(int32tempbuffer);
             NumberOfFiles = BitConverter.ToInt32(int32tempbuffer);
-
-            for (int i =0; i< NumberOfFiles; i++) // Screw this :) I ain't keeping track of this junk :D
+            SubDirectories.Clear();
+            for (int i = 0; i < NumberOfFiles; i++) // Screw this :) I ain't keeping track of this junk :D
             {
+                WadSubDirectoryEntry subEntry = new WadSubDirectoryEntry();
+                subEntry.ReadData(stream);
+                SubDirectories.Add(subEntry);
+                /*
                 stream.Read(int32tempbuffer);
                 int subdirNameLength = BitConverter.ToInt32(int32tempbuffer);
                 stream.Position += subdirNameLength;
-                stream.ReadByte();
+                stream.ReadByte();*/
+            }
+        }
+
+        public void WriteData(Stream stream, bool flexible = false)
+        {
+            if (!flexible)
+            {
+                stream.Position = EntryOffset;
+            }
+            stream.Write(BitConverter.GetBytes(DirectoryName.Length));
+            stream.Write(Encoding.Default.GetBytes(DirectoryName));
+            stream.Write(BitConverter.GetBytes(SubDirectories.Count));
+            foreach(var subDirEntry in SubDirectories) 
+            {
+                subDirEntry.WriteData(stream);
             }
         }
     }

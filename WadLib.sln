@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WadLib", "WadLib\WadLib.csproj", "{10CA0DD7-611E-480D-A32F-FD15FF0F1DB9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WadExtractRepack", "WadExtract\WadExtractRepack.csproj", "{DA8DA168-427E-43E6-BB9D-D2ADA5263ABB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{10CA0DD7-611E-480D-A32F-FD15FF0F1DB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10CA0DD7-611E-480D-A32F-FD15FF0F1DB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10CA0DD7-611E-480D-A32F-FD15FF0F1DB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10CA0DD7-611E-480D-A32F-FD15FF0F1DB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA8DA168-427E-43E6-BB9D-D2ADA5263ABB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA8DA168-427E-43E6-BB9D-D2ADA5263ABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA8DA168-427E-43E6-BB9D-D2ADA5263ABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA8DA168-427E-43E6-BB9D-D2ADA5263ABB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {432785C3-14E1-4A10-B1A3-8193B7E62BE7}
+	EndGlobalSection
+EndGlobal

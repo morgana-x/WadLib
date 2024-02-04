@@ -152,7 +152,7 @@ namespace WadLib
                 entry.WriteData(stream, true);
             }
         }
-        public void BuildTo(Stream stream) // For reloaded II stuff
+        private void BuildTo(Stream stream) // For reloaded II stuff
         {
             WriteHeader(stream);
             foreach (WadFileEntry entry in FileEntries)

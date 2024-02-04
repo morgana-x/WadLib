@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WadLib", "WadLib\WadLib.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WadExtractRepack", "WadExtract\WadExtractRepack.csproj", "{DA8DA168-427E-43E6-BB9D-D2ADA5263ABB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WadGui", "WadGui\WadGui.csproj", "{15E9C2DA-DFAA-4F78-9139-5C63B8FD8C90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{DA8DA168-427E-43E6-BB9D-D2ADA5263ABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA8DA168-427E-43E6-BB9D-D2ADA5263ABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA8DA168-427E-43E6-BB9D-D2ADA5263ABB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15E9C2DA-DFAA-4F78-9139-5C63B8FD8C90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15E9C2DA-DFAA-4F78-9139-5C63B8FD8C90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15E9C2DA-DFAA-4F78-9139-5C63B8FD8C90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15E9C2DA-DFAA-4F78-9139-5C63B8FD8C90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

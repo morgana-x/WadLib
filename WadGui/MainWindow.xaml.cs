@@ -23,6 +23,14 @@ namespace WadGui
             InitializeComponent();
             Textbox.TextChanged += TextChanged;
             listBox.SelectionMode = SelectionMode.Multiple;
+            this.KeyDown += keyDownInput;
+        }
+        private void keyDownInput(object sender,KeyEventArgs e)
+        {
+            if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) && e.KeyboardDevice.IsKeyDown(Key.A)) 
+            {
+                listBox.SelectAll();
+            }
         }
         private Wad currentWad = null;
         private List<string> selectedItems = new List<string>();
@@ -146,11 +154,11 @@ namespace WadGui
 
         private void Textbox_KeyDown(object sender, KeyEventArgs e)
         {
-            /*if (currentWad == null)
+            if (currentWad == null)
             {
                 return;
             }
-            RefreshList(Textbox.Text);*/
+            
         }
     }
 }

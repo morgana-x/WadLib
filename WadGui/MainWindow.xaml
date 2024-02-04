@@ -8,7 +8,7 @@
         Title="Wad Gui Extractor" Height="450" Width="800" Background="#FF171717">
     <Grid>
         <ListBox x:Name="listBox" HorizontalAlignment="Center" Height="294" Margin="0,78,0,0" VerticalAlignment="Top" Width="672" d:ItemsSource="{d:SampleData ItemCount=100}" SelectionChanged="ListBox_SelectionChanged" Background="#FF383838" BorderBrush="#FF38497D" Foreground="White"/>
-        <TextBox x:Name="Textbox" HorizontalAlignment="Center" Height="23" Margin="0,50,0,0" VerticalAlignment="Top" Width="672" Text="" KeyDown="Textbox_KeyDown" TextChanged="Textbox_TextChanged"></TextBox>
+        <TextBox x:Name="Textbox" HorizontalAlignment="Center" Height="23" Margin="0,50,0,0" VerticalAlignment="Top" Width="672" Text="" KeyDown="Textbox_KeyDown"></TextBox>
         <Button Content="Extract Selected" HorizontalAlignment="Left" Height="33" Margin="64,377,0,0" VerticalAlignment="Top" Width="112" Click="Button_Click_Extract_Selected"/>
         <Button Content="Extract All" HorizontalAlignment="Left" Height="33" Margin="181,377,0,0" VerticalAlignment="Top" Width="112" RenderTransformOrigin="0.5,0.501" Click="Button_Click_Extract_All"/>
         <Button x:Name ="OpenWadButton" Content="Open File" HorizontalAlignment="Center" Height="19" Margin="0,26,0,0" VerticalAlignment="Top" Width="672" Click="Button_Click_Open_Wad" />

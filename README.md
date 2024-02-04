@@ -10,3 +10,8 @@ This one is capable of
 + Repacking
 + Extracting Singular Files
 + Patching (In progress, planning to have this feature allow stuff like Reloaded II mods etc that don't actually change a physical file or rebuild anything)
+
+# WadGui
+Bundled in the releases is a Gui program that lets you search and extract specific files from a selected wad file that uses the wad library
+
+![Screenshot (14)](https://github.com/morgana-x/WadLib/assets/89588301/42cd52da-7454-4165-81fb-6ae9bef1dee0)

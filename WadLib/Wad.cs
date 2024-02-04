@@ -126,7 +126,7 @@ namespace WadLib
             stream.Write(WadIdentifier);
 
             stream.Write(BitConverter.GetBytes((int)1)); // Major Version
-            stream.Write(BitConverter.GetBytes((int)0)); // Minor Version
+            stream.Write(BitConverter.GetBytes((int)1)); // Minor Version, Needs to be 1 or the Danganronpa 1 crashes?
 
             stream.Write(BitConverter.GetBytes((int)0)); // Header Size
             //Skip Header data since danganronpa doesnt use that
@@ -180,7 +180,7 @@ namespace WadLib
             fileStream.Write(WadIdentifier);
 
             fileStream.Write(BitConverter.GetBytes((int)1)); // Major Version
-            fileStream.Write(BitConverter.GetBytes((int)0)); // Minor Version
+            fileStream.Write(BitConverter.GetBytes((int)1)); // Minor Version, Needs to be 1 or Danganronpa 1 crashes?
 
             fileStream.Write(BitConverter.GetBytes((int)0)); // Header Size
             //Skip Header data since danganronpa doesnt use that

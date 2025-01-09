@@ -1,0 +1,12 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/WadExtract/bin/Debug/net8.0
+/WadExtract/obj/Debug/net8.0
+/WadExtract/obj
+/WadGui/bin/Debug/net8.0-windows
+/WadGui/obj
+/WadLib/bin/Debug/net8.0
+/WadLib/obj

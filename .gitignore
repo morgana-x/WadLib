@@ -10,3 +10,6 @@
 /WadGui/obj
 /WadLib/bin/Debug/net8.0
 /WadLib/obj
+/WadExtract/bin/Release/net8.0
+/WadGui/bin/Release/net8.0-windows
+/WadLib/bin/Release/net8.0

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace WadLib
 {
@@ -38,7 +31,6 @@ namespace WadLib
 
             WadStream.Read(tempIntBuffer);
             NumberOfFiles = BitConverter.ToInt32(tempIntBuffer);
-            //Console.WriteLine("Number of files: " + NumberOfFiles);
             
             // Probably don't want any left overs from previous wad files
             FileEntries.Clear();
@@ -54,7 +46,7 @@ namespace WadLib
 
             WadStream.Read(tempIntBuffer);
             NumberOfDirectories = BitConverter.ToInt32(tempIntBuffer);
-            //Console.WriteLine("Number of Directories: " + NumberOfDirectories);
+
             for (int i = 0; i < NumberOfDirectories; i++)
             {
                 WadDirectoryEntry entry = new WadDirectoryEntry();
@@ -109,20 +101,21 @@ namespace WadLib
         {
             WriteHeader(stream);
             foreach (WadFileEntry entry in FileEntries)
-            {
                 stream.Write(GetFileData(entry));
-            }
+        }
+        private static string GetRelativePath(string filePath, string sourcePath)
+        {
+            string newFileName = filePath.Replace(sourcePath, "").Replace("\\", "/");
+            if (newFileName[0] == '/')
+                newFileName = newFileName.Substring(1);
+            return newFileName;
         }
         public static void Repack(string inPath, string outPath = null)
         {
             if (outPath == null)
-            {
                 outPath = inPath + ".wad";
-            }
        
-            EnumerationOptions options = new EnumerationOptions();
-            options.RecurseSubdirectories = true;
-            options.MaxRecursionDepth = 200; // sure hope it doesn't get that far!
+            EnumerationOptions options = new EnumerationOptions() { RecurseSubdirectories = true, MaxRecursionDepth = 220 };
 
             List<string> filesToBePacked = Directory.GetFiles(inPath, "*", options).ToList();
             List<string> directorysToBePacked = Directory.GetDirectories(inPath, "*", options).ToList();
@@ -144,10 +137,8 @@ namespace WadLib
 
             foreach(string file in filesToBePacked) // Write all file entries
             {
-                string newFileName = file.Replace(inPath, "").Replace("\\", "/");//file.Replace(inPath, "");
-                if (newFileName[0] == '/')
-                    newFileName = newFileName.Substring(1);
-                //newFileName = newFileName.Replace("\\", "/");
+                string newFileName = GetRelativePath(file, inPath);
+
                 int fileNameLength = newFileName.Length;
 
                 fileStream.Write(BitConverter.GetBytes(fileNameLength));
@@ -163,14 +154,14 @@ namespace WadLib
 
                 fileOffset += size;
             }
-            //directorysToBePacked.Insert(0, directorysToBePacked[0]); // why?
+
             directorysToBePacked.Insert(0, inPath + "\\");
             fileStream.Write(BitConverter.GetBytes((long)directorysToBePacked.Count)); // Number of Directories
             
             foreach(string dir in directorysToBePacked) // I hate abstractiongames  i hate abstractiongames i hate as
             { // Just kidding they are an amazing studio but please make better file formats :(
 
-                string dirName = dir.Replace(inPath + "\\", "").Replace("\\", "/");
+                string dirName = GetRelativePath(dir, inPath);
                 //Console.WriteLine(dirName);
                 if (dirName.Length > 0)
                 {
@@ -189,20 +180,18 @@ namespace WadLib
                 // dear lord...
                 foreach (string file in subFiles)
                 {
-                    string fileName = file.Replace(inPath + "\\", "").Replace("\\", "/").Replace(dirName + "/", "");
-                    //Console.WriteLine(fileName);
+                    string fileName = GetRelativePath(file, inPath).Replace(dirName + "/", "");
+
                     fileStream.Write(BitConverter.GetBytes(fileName.Length));
                     fileStream.Write(Encoding.Default.GetBytes(fileName));
                     fileStream.WriteByte(0);
                 }
                 foreach (string file in subDirectories)
                 {
-                    string fileName = file.Replace(inPath + "\\", "").Replace("\\", "/");
+                    string fileName = GetRelativePath(file, inPath);
                     if (fileName.Contains("/"))
-                    {
                         fileName = fileName.Substring(fileName.LastIndexOf("/")+1);
-                    }
-                    //Console.WriteLine(fileName);
+
                     fileStream.Write(BitConverter.GetBytes(fileName.Length));
                     fileStream.Write(Encoding.Default.GetBytes(fileName));
                     fileStream.WriteByte(1);
@@ -212,9 +201,8 @@ namespace WadLib
 
             // Write all file data
             foreach (string file in filesToBePacked)
-            {
                 fileStream.Write(File.ReadAllBytes(file));
-            }
+
             fileStream.Dispose();
             fileStream.Close();
         }
@@ -229,7 +217,7 @@ namespace WadLib
         public void ExtractFile(WadFileEntry entry, string outFolder)
         {
             byte[] data = GetFileData(entry);
-            Directory.CreateDirectory( Directory.GetParent(outFolder + "\\" + entry.FileName).FullName);
+            Directory.CreateDirectory( Directory.GetParent( Path.Combine(outFolder,entry.FileName)).FullName);
             File.WriteAllBytes(outFolder + "\\" + entry.FileName, data);
 
             data = null;
@@ -253,9 +241,7 @@ namespace WadLib
         public void ExtractAllFiles(string outFolder)
         {
             foreach (WadFileEntry entry in FileEntries)
-            {
                 ExtractFile(entry, outFolder);
-            }
         }
         public void Dispose() // Cleanup everything
         {
@@ -263,12 +249,6 @@ namespace WadLib
             WadStream.Close();
             FileEntries.Clear();
             DirectoryEntries.Clear();
-        }
-        public Wad CreateVirtualWad() // Create a virtual wad (No physical file)
-        {
-            Stream virtualStream = new MemoryStream();
-            WadStream.CopyTo(virtualStream);
-            return new Wad(virtualStream);
         }
         public Wad(Stream stream)
         { 

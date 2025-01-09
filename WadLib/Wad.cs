@@ -73,53 +73,6 @@ namespace WadLib
             stream.Read(ident);
             return ident.SequenceEqual(WadIdentifier);
         }
-        private void Patch(WadFileEntry entry, byte[] fileData) // For Virtual Wad Files, so reloadedII things can happen!
-        {
-            int index = FileEntries.IndexOf(entry);
-            long oldFileSize = entry.FileSize;
-
-
-            entry.FileSize = fileData.LongLength;
-            entry.WriteData(WadStream);
-
-            FileEntries[index] = entry;
-
-            if (index == fileData.Length -1)
-            {
-                return;
-            }
-            long sizeOfBytesToBeShifted = FileEntries[index + 1].FileOffset - WadStream.Length; // Oh lord...
-
-            long offset = 0;
-            byte[] buffer = new byte[80000];
-            while(offset < sizeOfBytesToBeShifted)
-            {
-                int bytesRead = WadStream.Read(buffer);
-                WadStream.Position = FileEntries[index].FileOffset + fileData.LongLength + offset;
-                WadStream.Write(buffer);
-                offset += bytesRead;
-            }
-
-            WadStream.Position = FileEntries[index].FileOffset;
-            WadStream.Write(fileData);
-            for (int i = index + 1; i < fileData.Length; i ++)
-            {
-                FileEntries[i].FileOffset += (entry.FileSize - oldFileSize);
-                FileEntries[i].WriteData(WadStream);
-            }
-        }
-        public void Patch(string path, byte[] fileData) // Path relative to wad, eg: Dr1/data/us/script/something.lin etc
-        {
-            path = path.Replace("\\", "/");
-            foreach(WadFileEntry entry in FileEntries)
-            {
-                if (entry.FileName.ToLower() == path.ToLower())
-                {
-                    Patch(entry, fileData);
-                    break;
-                }
-            }
-        }
         private void WriteHeader(Stream stream)
         {
             stream.Position = 0;
@@ -191,7 +144,9 @@ namespace WadLib
 
             foreach(string file in filesToBePacked) // Write all file entries
             {
-                string newFileName = file.Replace(inPath + "\\", "").Replace("\\", "/"); ;//file.Replace(inPath, "");
+                string newFileName = file.Replace(inPath, "").Replace("\\", "/");//file.Replace(inPath, "");
+                if (newFileName[0] == '/')
+                    newFileName = newFileName.Substring(1);
                 //newFileName = newFileName.Replace("\\", "/");
                 int fileNameLength = newFileName.Length;
 

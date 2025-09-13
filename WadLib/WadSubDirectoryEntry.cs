@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace WadLib
 {
     internal class WadSubDirectoryEntry
     {
-        public string SubFileName { get; set; }
+        public string SubFileName;
         public bool IsDirectory;
 
-        public void ReadData(Stream stream)
+        public WadSubDirectoryEntry() { }
+        public WadSubDirectoryEntry(BinaryReader br) { ReadData(br); }
+
+        public void ReadData(BinaryReader br)
         {
-            byte[] nameLengthBuffer = new byte[4];
-            stream.Read(nameLengthBuffer);
-            byte[] nameBuffer = new byte[BitConverter.ToInt32(nameLengthBuffer)];
-            stream.Read(nameBuffer);
-            SubFileName = Encoding.Default.GetString(nameBuffer);
-            IsDirectory = stream.ReadByte() != 0;
+            SubFileName = Encoding.Default.GetString(br.ReadBytes(br.ReadInt32()));
+            IsDirectory = br.ReadByte() != 0;
         }
+
         public void WriteData(Stream stream)
         {
             stream.Write(BitConverter.GetBytes(SubFileName.Length));

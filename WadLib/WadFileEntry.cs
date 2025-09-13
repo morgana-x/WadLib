@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+﻿using System.Text;
+
 namespace WadLib
 {
     public class WadFileEntry
@@ -14,24 +9,15 @@ namespace WadLib
         public long FileOffset { get; set; } = 0; // int 64, 8 bytes The offset is from the beginning of the file data section in the parent WAD
 
         public long EntryOffset { get; set; } = 0; // location of where this file entry is at so it can be edited
-        public void ReadData(Stream stream)
+
+        public WadFileEntry() { }
+        public WadFileEntry(BinaryReader br) { ReadData(br); }
+        public void ReadData(BinaryReader br)
         {
-
-            EntryOffset = stream.Position;
-            byte[] temp32intBuffer = new byte[4];
-            byte[] temp64intBuffer = new byte[8];
-
-            stream.Read(temp32intBuffer);
-            int fileNameLength = BitConverter.ToInt32(temp32intBuffer);
-            byte[] tempfilenamebuffer = new byte[fileNameLength];
-            stream.Read(tempfilenamebuffer);
-            FileName = System.Text.Encoding.Default.GetString(tempfilenamebuffer);
-
-            stream.Read(temp64intBuffer);
-            FileSize = BitConverter.ToInt64(temp64intBuffer);
-
-            stream.Read(temp64intBuffer);
-            FileOffset = BitConverter.ToInt64(temp64intBuffer);
+            EntryOffset = br.BaseStream.Position;
+            FileName = Encoding.Default.GetString(br.ReadBytes(br.ReadInt32()));
+            FileSize = br.ReadInt64();
+            FileOffset = br.ReadInt64();
         }
         public void WriteData(Stream stream, bool flexible = false)
         {

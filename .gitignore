@@ -13,3 +13,6 @@
 /WadExtract/bin/Release/net8.0
 /WadGui/bin/Release/net8.0-windows
 /WadLib/bin/Release/net8.0
+/WadExtract/bin/Release
+/WadGui/bin/Release
+/WadLib/bin/Release

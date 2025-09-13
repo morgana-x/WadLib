@@ -1,14 +1,7 @@
-﻿using System.IO;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Microsoft.Win32;
 using WadLib;
 namespace WadGui
@@ -69,9 +62,7 @@ namespace WadGui
             listBox.Items.Clear();
             //listBox.MaxHeight = foundEntrys.Count * 30;
             foreach(var  entry in foundEntrys)
-            {
                 listBox.Items.Add(entry.FileName);
-            }
             
         }
 
@@ -85,14 +76,15 @@ namespace WadGui
             openFileDialog.Title = "Select the Directory to extact to";
             openFileDialog.ShowDialog();
             string selectedOutFolder = openFileDialog.FolderName;
+
             Processing = true;
+
             ProgressLabel.Background = Brushes.Yellow; //.SetCurrentValue(BackgroundProperty,// "#ebe834");
             ProgressLabel.Content = "Extracting " + selectedItems.Count + " items...";
-            //ProgressLabel.Background.SetValue(BackgroundProperty, 2);
+
             foreach (var item in selectedItems)
-            {
                 currentWad.ExtractFile(item, selectedOutFolder);
-            }
+
             Processing = false;
             ProgressLabel.Background = Brushes.Green;
             ProgressLabel.Content = "Succesfully extracted " + selectedItems.Count + " items...";
@@ -135,12 +127,17 @@ namespace WadGui
         }
         private void Button_Click_Open_Wad(object sender, RoutedEventArgs e)
         {
+            if (Processing) return;
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Multiselect = false;
             openFileDialog.Title = "Select the WAD file";
             openFileDialog.DefaultExt = ".wad";
             openFileDialog.CheckFileExists = true;
             openFileDialog.ShowDialog();
+
+            if (openFileDialog.FileName == "") return;
+            if (!Wad.IsWad(openFileDialog.FileName)) return;
+
             if (currentWad != null)
             {
                 currentWad.Dispose();

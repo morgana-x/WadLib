@@ -46,6 +46,14 @@
             return ident.SequenceEqual(WadIdentifier);
         }
 
+        public static bool IsWad(string filepath)
+        {
+            FileStream s = new FileStream(filepath, FileMode.Open);
+            bool iswad = IsWad(s);
+            s.Dispose();
+            return iswad;
+        }
+
 
         private static string GetRelativeFilePath(string filePath, string sourcePath)
         {

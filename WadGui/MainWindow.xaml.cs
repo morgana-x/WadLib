@@ -41,7 +41,7 @@ namespace WadGui
             {
                 return;
             }
-            List<WadFileEntry> foundEntrys = new();
+            List<WadFile> foundEntrys = new();
             foreach (var entry in currentWad.FileEntries)
             {
                 if (search == string.Empty)

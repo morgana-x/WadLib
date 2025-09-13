@@ -1,5 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-namespace WadLib
+﻿namespace WadLib
 {
     public partial class Program
     {
@@ -11,11 +10,12 @@ namespace WadLib
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Not a wad file!");
                 Console.ForegroundColor = ConsoleColor.Gray;
+                stream.Dispose();
                 return;
             }
             
             string fullPath = Directory.GetParent(wadFilePath).FullName;
-            string outFolder = fullPath + "\\" + wadFilePath.Replace(fullPath, "").Replace(".wad", "") + "_extracted";
+            string outFolder = fullPath + "/" + wadFilePath.Replace(fullPath, "").Replace(".wad", "");
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Extracting files...");
@@ -45,58 +45,43 @@ namespace WadLib
             Console.WriteLine("Repacked to \n" + wadFilePath + ".wad");
             Console.ForegroundColor = ConsoleColor.Gray;
         }
-        private static void Loop(string wadFilePath) 
+        private static void Loop(string? wadFilePath) 
         {
-            Console.Clear();
-            Console.Title = "WAD Extract Repack";
             Console.ForegroundColor = ConsoleColor.Gray;
+
             if (wadFilePath == null)
             {
                 Console.WriteLine("Drag and drop:\nWAD file to extract\nOR\nFolder to repack");
                 wadFilePath = Console.ReadLine();
                 wadFilePath = wadFilePath.Replace("\"", "");
             }
+
             if (File.Exists(wadFilePath))
             {
                 Extract(wadFilePath);
+                return;
             }
-            else if (Directory.Exists(wadFilePath))
+
+            if (Directory.Exists(wadFilePath))
             {
                 Repack(wadFilePath);
+                return;
             }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No file or folder found!");
-                Console.ForegroundColor = ConsoleColor.Gray;
-            }
-           
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("No file or folder found!");
+            Console.ForegroundColor = ConsoleColor.Gray;
         }
         public static void Main(string[] args)
         {
-            // Test of extracting singular files
-            /*string path = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Danganronpa Trigger Happy Havoc\\dr1_data_us.wad";
-            Wad wad = new Wad(path);
-            string folder = Directory.GetParent(path).FullName;
-            wad.ExtractFile("Dr1/data/us/script/e00_000_000.lin", folder);
-            wad.Dispose();
-            wad = null;
-            return;*/
             string arg = args.Length > 0 ? args[0] : null;
+            if (args.Length > 0) { Loop(arg); return; }
+
+            Console.Title = "WAD Extract Repack";
+
             while (true)
-            {
-                Loop(arg);
-                if (arg != null)
-                {
-                    break;
-                }
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine("Press any key to continue...");
-                Console.ReadKey();
-            }
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("Press any key to close...");
-            Console.ReadKey();
+                Loop(null);
+       
         }
     }
 }

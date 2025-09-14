@@ -20,14 +20,6 @@ namespace WadLib
                 SubDirectories.Add(new WadSubEntry(br));
         }
 
-        public void WriteEntry(Stream stream)
-        {
-            WriteEntry(stream, DirectoryName, SubDirectories.Count);
-
-            foreach(var subDirEntry in SubDirectories) 
-                subDirEntry.WriteEntry(stream);
-        }
-
         public static void WriteEntry(Stream stream, string name, int numfiles)
         {
             if (name.Length > 0)

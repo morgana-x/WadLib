@@ -37,23 +37,19 @@
             DataSectionOffset = WadStream.Position;
         }
 
-
         public static bool IsWad(Stream stream) // Check if first 4 bytes equals the identifier (AGAR) for WAD files
         {
+            byte[] identifierBuffer = new byte[WadIdentifier.Length];
             stream.Position = 0;
-            byte[] ident = new byte[WadIdentifier.Length];
-            stream.Read(ident);
-            return ident.SequenceEqual(WadIdentifier);
+            stream.Read(identifierBuffer);
+            return identifierBuffer.SequenceEqual(WadIdentifier);
         }
 
         public static bool IsWad(string filepath)
         {
-            FileStream s = new FileStream(filepath, FileMode.Open);
-            bool iswad = IsWad(s);
-            s.Dispose();
-            return iswad;
+            using (var s = new FileStream(filepath, FileMode.Open))
+                return IsWad(s);
         }
-
 
         private static string GetRelativeFilePath(string filePath, string sourcePath)
         {
@@ -134,32 +130,37 @@
             fileStream.Close();
         }
 
+        public void ExtractAllFiles(string outFolder)
+        { 
+            foreach(var entry in FileEntries)
+                ExtractFile(entry, outFolder);
+        }
 
+        public void ExtractFile(string file, string outFolder)
+        { 
+            ExtractFile(FindFileEntry(file), outFolder);
+        }
+
+        public void ExtractFile(WadFile? entry, string outFolder)
+        {
+            if (entry == null) return;
+
+            Directory.CreateDirectory( Directory.GetParent( Path.Combine(outFolder,entry.FileName)).FullName);
+            File.WriteAllBytes(outFolder + "/" + entry.FileName, GetFileData(entry));
+        }
 
         public byte[] GetFileData(WadFile entry)
         {
             br.BaseStream.Position = DataSectionOffset + entry.FileOffset;
             return br.ReadBytes((int)entry.FileSize);
         }
+
         public WadFile? FindFileEntry(string path)
         {
-            path = path.Replace("\\", "/");
-            return FileEntries.Find((x) => { return x.FileName.ToLower() == path.ToLower(); });
-        }
-        public void ExtractFile(WadFile entry, string outFolder)
-        {
-            Directory.CreateDirectory( Directory.GetParent( Path.Combine(outFolder,entry.FileName)).FullName);
-            File.WriteAllBytes(outFolder + "/" + entry.FileName, GetFileData(entry));
-        }
-        public void ExtractFile(int id, string outFolder) => ExtractFile(FileEntries[id], outFolder);
- 
-        public void ExtractFile(string file, string outFolder) // Path relative to wad, eg: Dr1/data/us/script/something.lin etc
-        {
-            var entry = FindFileEntry(file);
-            if (entry != null) ExtractFile(entry, outFolder);
+            return FileEntries.Find((x) => x.FileName.ToLower() == path.ToLower());
         }
 
-        public void ExtractAllFiles(string outFolder) { foreach (WadFile entry in FileEntries) { ExtractFile(entry, outFolder); } }
+
         public void Dispose() // Cleanup everything
         {
             WadStream.Dispose();

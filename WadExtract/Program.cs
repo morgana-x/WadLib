@@ -11,11 +11,19 @@
                 Console.WriteLine("Packed!");
                 return;
             }
+
             if (!File.Exists(filePath))
             {
                 Console.WriteLine($"File {filePath} doesn't exist!");
                 return;
             }
+
+            if (!Wad.IsWad(filePath))
+            {
+                Console.WriteLine("Invalid or corrupted WAD File!");
+                return;
+            }
+
             Console.WriteLine($"Extracting {filePath}...");
 
             var wad = new Wad(filePath);

@@ -1,4 +1,6 @@
-﻿namespace WadLib
+﻿using System.IO;
+
+namespace WadLib
 {
     public class Wad
     {
@@ -51,14 +53,6 @@
                 return IsWad(s);
         }
 
-        private static string GetRelativeFilePath(string filePath, string sourcePath)
-        {
-            string newFileName = filePath.Replace(sourcePath, "").Replace("\\", "/");
-            if (newFileName[0] == '/')
-                newFileName = newFileName.Substring(1);
-            return newFileName;
-        }
-
         public static void Repack(string inFolder, string? outPath = null)
         {
             if (outPath == null)
@@ -67,8 +61,9 @@
             EnumerationOptions options = new EnumerationOptions() { RecurseSubdirectories = true, MaxRecursionDepth = 220 };
 
             List<string> filesToBePacked = Directory.GetFiles(inFolder, "*", options).ToList();
-            List<string> directorysToBePacked = Directory.GetDirectories(inFolder, "*", options).ToList();
 
+            List<string> directorysToBePacked = Directory.GetDirectories(inFolder, "*", options).ToList();
+            directorysToBePacked.Insert(0, inFolder + "/"); // Include root directory of folder
 
             FileStream fileStream = new FileStream(outPath, FileMode.Create);
 
@@ -78,48 +73,45 @@
             fileStream.Write(BitConverter.GetBytes((int)1)); // Minor Version, Needs to be 1 or Danganronpa 1 crashes?
             fileStream.Write(BitConverter.GetBytes((int)0)); // Header Size, set to zero to tell it to skip
 
+
             fileStream.Write(BitConverter.GetBytes(filesToBePacked.Count)); // Number of files
+
             long fileOffset = 0;
             foreach(string file in filesToBePacked) // Write all file entries
             {
-                string internalFilePath = GetRelativeFilePath(file, inFolder);
+                string internalFilePath = Path.GetRelativePath(inFolder, file).Replace("\\", "/");
+
                 long fileSize = new FileInfo(file).Length;
 
-                WadFile.WriteEntry(fileStream, internalFilePath, new FileInfo(file).Length, fileOffset);
+                WadFile.WriteEntry(fileStream, internalFilePath, fileSize, fileOffset);
 
                 fileOffset += fileSize;
             }
 
-            directorysToBePacked.Insert(0, inFolder + "/");
+          
+
             fileStream.Write(BitConverter.GetBytes((long)directorysToBePacked.Count)); // Number of Directories
             
-            foreach(string dir in directorysToBePacked) // I hate abstractiongames  i hate abstractiongames
-            { // Just kidding they are an amazing studio but please make simpler file formats :(
+            foreach(string dir in directorysToBePacked)
+            {
+                string dirName = Path.GetRelativePath(inFolder, dir).Replace("\\","/");
 
-                string dirName = GetRelativeFilePath(dir, inFolder);
-          
-                string[] subDirectories = Directory.GetDirectories(dir);
-                string[] subFiles       = Directory.GetFiles(dir);
+                var subDirectories  = Directory.GetDirectories(dir);
+                var subFiles        = Directory.GetFiles(dir);
 
-                // Write directory metadata with total number of sub file / directory entries
+                for (int i = 0; i < subDirectories.Length; i++) { subDirectories[i] = Path.GetRelativePath (dir, subDirectories[i]); }
+                for (int i = 0; i < subFiles.Length      ; i++) { subFiles      [i] = Path.GetRelativePath (dir, subFiles[i]);       }
+
+                // Write dir name & num of sub entries
                 WadDir.WriteEntry(fileStream, dirName, subDirectories.Length + subFiles.Length);
 
+                // Write Sub File Entries
+                foreach (string subfile in subFiles)
+                    WadSubEntry.WriteEntry(fileStream, subfile, false);
 
-                foreach (string file in subFiles)
-                {
-                    string fileName = GetRelativeFilePath(file, inFolder).Replace(dirName + "/", "");
-                    WadSubEntry.WriteEntry(fileStream, fileName, false);
-                }
-
-                foreach (string file in subDirectories)
-                {
-                    string fileName = GetRelativeFilePath(file, inFolder);
-                    if (fileName.Contains("/"))
-                        fileName = fileName.Substring(fileName.LastIndexOf("/")+1);
-
-                    WadSubEntry.WriteEntry(fileStream, fileName, true);
-                }
-
+                // Write Sub Dir Entries
+                foreach (string subdir in subDirectories)
+                    WadSubEntry.WriteEntry(fileStream, subdir, true);
             }
 
             // Write all file data

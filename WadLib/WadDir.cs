@@ -4,8 +4,8 @@ namespace WadLib
 {
     public class WadDir
     {
-        public string DirectoryName;
-        public List<WadSubEntry> SubDirectories { get; set; } = new List<WadSubEntry>();
+        public string DirectoryName = string.Empty;
+        public List<WadSubEntry> SubDirectories = new List<WadSubEntry>();
 
         public WadDir() { }
         public WadDir(BinaryReader br) {  ReadData(br); }

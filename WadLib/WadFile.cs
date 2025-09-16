@@ -4,9 +4,10 @@ namespace WadLib
 {
     public class WadFile
     {
-        public string FileName { get; set; } = "NULL";
-        public long FileSize { get; set; } = 0; // int 64, 8 bytes
-        public long FileOffset { get; set; } = 0; // int 64, 8 bytes The offset is from the beginning of the file data section in the parent WAD
+        public string FileName   = string.Empty;
+
+        public long   FileSize   = 0;
+        public long   FileOffset = 0;//  The offset is from the beginning of the file data section in the parent WAD
 
         public WadFile() { }
         public WadFile(BinaryReader br)

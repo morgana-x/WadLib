@@ -2,86 +2,44 @@
 {
     public partial class Program
     {
-        private static void Extract(string wadFilePath)
+        static void Execute(string filePath)
         {
-            FileStream stream = new FileStream(wadFilePath, FileMode.Open);
-            if (!Wad.IsWad(stream))
+            if (Directory.Exists(filePath))
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Not a wad file!");
-                Console.ForegroundColor = ConsoleColor.Gray;
-                stream.Dispose();
+                Console.WriteLine($"Packing {filePath}...");
+                Wad.Repack(filePath);
+                Console.WriteLine("Packed!");
                 return;
             }
-            
-            string fullPath = Directory.GetParent(wadFilePath).FullName;
-            string outFolder = fullPath + "/" + wadFilePath.Replace(fullPath, "").Replace(".wad", "");
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Extracting files...");
-            Console.ForegroundColor = ConsoleColor.Gray;
-
-            Wad wadFile = new Wad(stream);
-            wadFile.ExtractAllFiles(outFolder);
-            wadFile.Dispose();
-            wadFile = null;
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Finished!");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Extracted to \n" + outFolder);
-            Console.ForegroundColor = ConsoleColor.Gray;
-        }
-        private static void Repack(string wadFilePath)
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Repacking files...");
-            Console.ForegroundColor = ConsoleColor.Gray;
-
-            Wad.Repack(wadFilePath);
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Finished!");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Repacked to \n" + wadFilePath + ".wad");
-            Console.ForegroundColor = ConsoleColor.Gray;
-        }
-        private static void Loop(string? wadFilePath) 
-        {
-            Console.ForegroundColor = ConsoleColor.Gray;
-
-            if (wadFilePath == null)
+            if (!File.Exists(filePath))
             {
-                Console.WriteLine("Drag and drop:\nWAD file to extract\nOR\nFolder to repack");
-                wadFilePath = Console.ReadLine();
-                wadFilePath = wadFilePath.Replace("\"", "");
-            }
-
-            if (File.Exists(wadFilePath))
-            {
-                Extract(wadFilePath);
+                Console.WriteLine($"File {filePath} doesn't exist!");
                 return;
             }
+            Console.WriteLine($"Extracting {filePath}...");
 
-            if (Directory.Exists(wadFilePath))
-            {
-                Repack(wadFilePath);
-                return;
-            }
+            var wad = new Wad(filePath);
+            wad.ExtractAllFiles(filePath.Replace(".wad", ""));
+            wad.Dispose();
 
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("No file or folder found!");
-            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("Extracted!");
         }
         public static void Main(string[] args)
         {
-            string arg = args.Length > 0 ? args[0] : null;
-            if (args.Length > 0) { Loop(arg); return; }
-
-            Console.Title = "WAD Extract Repack";
+            if (args.Length > 0)
+            {
+                Execute(args[0]);
+                return;
+            }
 
             while (true)
-                Loop(null);
-       
+            {
+                Console.WriteLine("Drag and drop file to extract!");
+                Console.WriteLine("OR Drag and drop folder to repack!");
+                string? filePath = Console.ReadLine().Replace("\"", "");
+                if (filePath == null || filePath.Trim() == "") break;
+                Execute(filePath);
+            }
         }
     }
 }

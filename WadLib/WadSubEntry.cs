@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Text;
+﻿using System.Text;
 
 namespace WadLib
 {
@@ -8,11 +7,11 @@ namespace WadLib
         public string SubFileName = string.Empty;
         public bool IsDirectory   = false;
 
+        public WadSubEntry() { }
         public WadSubEntry(BinaryReader br) {
             SubFileName = Encoding.Default.GetString(br.ReadBytes(br.ReadInt32()));
             IsDirectory = br.ReadByte() != 0;
         }
-        public WadSubEntry(){ }
 
         public static void WriteEntry(Stream stream, string name, bool dir)
         {

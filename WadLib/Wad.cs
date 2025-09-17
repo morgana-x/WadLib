@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace WadLib
+﻿namespace WadLib
 {
     public class Wad
     {
@@ -22,6 +20,7 @@ namespace WadLib
 
             // Skip versions, identifier, etc
             br.BaseStream.Position = 12;
+
             // Skip the header according to https://wiki.spiralframework.info/view/WAD
             var headersize = br.ReadInt32();
             br.BaseStream.Position += headersize;

@@ -1,4 +1,4 @@
-# WadLib [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J21AWRWH)
+# WadLib
 Another library for WAD files, In C#
 This one is capable of
 + Extracting
